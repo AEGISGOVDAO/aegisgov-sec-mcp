@@ -1,0 +1,12 @@
+{
+  "name": "aegisgov-sec-mcp",
+  "version": "1.0.0",
+  "description": "SEC/EDGAR financial filings API for AI agents — pay per query in USDC",
+  "type": "commonjs",
+  "dependencies": {
+    "@x402/core": "^2.12.0",
+    "@x402/evm": "^2.12.0",
+    "@x402/express": "^2.12.0",
+    "node-fetch": "^3.3.2"
+  }
+}
