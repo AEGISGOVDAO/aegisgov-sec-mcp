@@ -1,19 +1,19 @@
 # AegisGov SEC Intelligence MCP
 
-SEC/EDGAR financial filings API for AI agents. Search 40M+ SEC filings, get company profiles, annual/quarterly reports, and structured XBRL financial data.
+SEC/EDGAR financial data for AI agents. **Currently free — no payment required.**
 
-**Data source:** Official SEC EDGAR (`data.sec.gov`) — no third-party dependency, no API key required.
+**Live endpoint:** `https://aegisgov-sec-mcp.vercel.app`
 
-**Payment:** Pay per query in USDC via [x402 protocol](https://x402.org). Currently FREE during beta.
+> 🆓 **Free Beta Mode active.** All tools return real SEC data at no cost. x402 USDC payments (Base mainnet + Solana mainnet) activate when ready.
 
 ## Tools
 
-| Tool | Endpoint | Price | Description |
-|------|----------|-------|-------------|
-| `search_companies` | `POST /search` | FREE (beta) | Search companies by name |
-| `get_company` | `POST /company` | FREE (beta) | Company profile + recent filings |
-| `get_filings` | `POST /filings` | FREE (beta) | 10-K, 10-Q, 8-K filings with URLs |
-| `get_financials` | `POST /financials` | FREE (beta) | XBRL financial data (revenue, income, assets) |
+| Tool | Endpoint | Description |
+|------|----------|-------------|
+| `search` | `POST /search` | Search public companies by name or ticker symbol |
+| `company` | `POST /company` | Company profile + recent filings |
+| `filings` | `POST /filings` | Get 10-K, 10-Q, 8-K filings with links |
+| `financials` | `POST /financials` | XBRL financial data — revenue, income, assets |
 
 ## Quick Start
 
@@ -28,39 +28,47 @@ curl -X POST https://aegisgov-sec-mcp.vercel.app/company \
   -H "Content-Type: application/json" \
   -d '{"ticker": "AAPL"}'
 
-# Get recent 10-K filings
+# Get 10-K filings
 curl -X POST https://aegisgov-sec-mcp.vercel.app/filings \
   -H "Content-Type: application/json" \
-  -d '{"ticker": "MSFT", "formType": "10-K", "limit": 3}'
+  -d '{"ticker": "AAPL", "formType": "10-K", "limit": 3}'
 
-# Get revenue history
+# Get financial data
 curl -X POST https://aegisgov-sec-mcp.vercel.app/financials \
   -H "Content-Type: application/json" \
-  -d '{"ticker": "NVDA", "concept": "revenue"}'
+  -d '{"ticker": "AAPL"}'
 ```
 
-## MCP Configuration
+## MCP Discovery
 
-Add to your MCP client config:
-
-```json
-{
-  "mcpServers": {
-    "aegisgov-sec": {
-      "url": "https://aegisgov-sec-mcp.vercel.app/.well-known/mcp.json"
-    }
-  }
-}
+```
+GET https://aegisgov-sec-mcp.vercel.app/.well-known/mcp.json
 ```
 
-## Discovery
+## Payment (x402)
 
-- Smithery: https://smithery.ai/server/@aegisgovdao/aegisgov-sec
-- Glama: https://glama.ai/mcp/servers/@aegisgovdao/aegisgov-sec
-- Manifest: https://aegisgov-sec-mcp.vercel.app/.well-known/mcp.json
+Uses [x402 protocol](https://x402.org) — HTTP 402 with USDC micropayments. No accounts. No API keys. Agents pay autonomously.
 
-## About
+**Supported networks:**
+- Base mainnet (`eip155:8453`) — USDC
+- Solana mainnet (`solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`) — USDC
 
-Built by [AegisGov AI](https://aegisgov.ai) — agent-to-agent data infrastructure, USDC micropayments via x402.
+**Facilitator:** [PayAI](https://payai.network) — free tier, no key required
 
-Topics: `mcp` `model-context-protocol` `mcp-server` `sec` `edgar` `finance` `financial-data` `x402` `ai-agents`
+## Why use this?
+
+- **No API key required** — directly hits official SEC EDGAR (data.sec.gov)
+- **Official government data** — 100% accurate, updated continuously
+- **10K+ public companies** — all SEC-registered issuers
+- **Agent-native** — designed for MCP, works with Claude, GPT, any LLM toolchain
+- **Dual-network x402** — pay in USDC on Base or Solana
+
+## Data Source
+
+[SEC EDGAR](https://data.sec.gov) — official US Securities and Exchange Commission data
+
+## Links
+
+- **Live:** https://aegisgov-sec-mcp.vercel.app
+- **Docs:** https://aegisgov.ai/sec-mcp
+- **GitHub:** https://github.com/AEGISGOVDAO/aegisgov-sec-mcp
