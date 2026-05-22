@@ -4,9 +4,11 @@
   "description": "SEC/EDGAR financial filings API for AI agents — pay per query in USDC",
   "type": "commonjs",
   "dependencies": {
+    "@payai/facilitator": "^2.4.1",
     "@x402/core": "^2.12.0",
     "@x402/evm": "^2.12.0",
     "@x402/express": "^2.12.0",
+    "@x402/svm": "^2.12.0",
     "node-fetch": "^3.3.2"
   }
 }
