@@ -4,6 +4,7 @@
     { "src": "api/*.js", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/mcp", "dest": "/api/mcp.js" },
     { "src": "/health", "dest": "/api/health.js" },
     { "src": "/", "dest": "/api/index.js" },
     { "src": "/.well-known/mcp.json", "dest": "/api/manifest.js" },
