@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.AEGISGOVDAO/aegisgov-sec-mcp",
+  "title": "Aegis Gov SEC Intelligence",
+  "description": "SEC/EDGAR financial data for AI agents. Search companies, get filings (10-K, 10-Q, 8-K), and XBRL financials. No API key needed.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "websiteUrl": "https://aegisgov.ai/sec-mcp",
+  "repository": {
+    "url": "https://github.com/AEGISGOVDAO/aegisgov-sec-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://aegisgov-sec-mcp.vercel.app/mcp"
+    }
+  ]
+}
