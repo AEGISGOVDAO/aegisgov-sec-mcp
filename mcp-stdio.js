@@ -232,4 +232,16 @@ process.stdin.on('end', () => {
 
 process.on('uncaughtException', (err) => {
   process.stderr.write(`[aegisgov-sec-mcp] uncaught: ${err.message}\n`);
+  // Don't exit — keep serving
+});
+
+process.on('unhandledRejection', (reason) => {
+  process.stderr.write(`[aegisgov-sec-mcp] unhandled rejection: ${reason}\n`);
+  // Don't exit — keep serving
+});
+
+process.stdout.on('error', (err) => {
+  // mcp-proxy closed the pipe — graceful exit
+  if (err.code === 'EPIPE') process.exit(0);
+  process.stderr.write(`[aegisgov-sec-mcp] stdout error: ${err.message}\n`);
 });
