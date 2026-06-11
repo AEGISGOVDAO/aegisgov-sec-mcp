@@ -4,7 +4,8 @@
   "description": "SEC/EDGAR financial filings API for AI agents — pay per query in USDC",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "mcp": "node mcp-stdio.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
