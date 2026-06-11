@@ -21,49 +21,104 @@ const CAPABILITIES = { tools: {} };
 const TOOLS = [
   {
     name: 'search_companies',
-    description: 'Search SEC EDGAR for public companies by name or ticker symbol.',
+    description: [
+      'Search the SEC EDGAR database for US public companies by name or ticker symbol.',
+      'Use this tool when you need to look up a company to get its CIK number, confirm its official SEC-registered name, or find its ticker — for example: "find Apple on EDGAR" or "what is the CIK for Tesla?".',
+      'Returns up to 20 matches (default 10), each with the company name, ticker symbol, and 10-digit CIK number.',
+      'This tool is read-only and queries the official SEC EDGAR company tickers dataset, which covers all SEC-registered public companies.',
+      'Use the returned ticker or CIK as the identifier in get_company_profile, get_filings, or get_financials.',
+    ].join(' '),
     inputSchema: {
       type: 'object',
       required: ['query'],
       properties: {
-        query: { type: 'string', description: 'Company name or ticker symbol' },
-        limit: { type: 'integer', description: 'Max results (1-20)', default: 10 },
+        query: {
+          type: 'string',
+          description: 'Company name or ticker symbol to search. Partial name matching is supported. Examples: "Apple", "AAPL", "Goldman Sachs", "GS".',
+        },
+        limit: {
+          type: 'integer',
+          description: 'Maximum number of results to return. Integer between 1 and 20. Defaults to 10.',
+          default: 10,
+        },
       },
     },
   },
   {
     name: 'get_company_profile',
-    description: 'Get company profile and recent SEC filings by ticker or CIK.',
+    description: [
+      'Retrieve the SEC EDGAR profile and recent filing history for a public company.',
+      'Use this tool when you need company metadata and a summary of recent filings — for example: "give me a profile of Microsoft" or "what has Apple filed recently with the SEC?".',
+      'Returns: official company name, CIK, ticker, SIC industry code and description, state of incorporation, fiscal year end, and the 10 most recent filings (form type, date, accession number).',
+      'This tool is read-only and pulls live data from the SEC EDGAR submissions API.',
+      'Use get_filings to filter by a specific form type, or get_financials to retrieve structured financial data.',
+    ].join(' '),
     inputSchema: {
       type: 'object',
       required: ['identifier'],
       properties: {
-        identifier: { type: 'string', description: 'Ticker symbol or CIK number' },
+        identifier: {
+          type: 'string',
+          description: 'Ticker symbol or CIK number for the company. Examples: "AAPL", "TSLA", "0000320193". Use search_companies first if you only have a company name.',
+        },
       },
     },
   },
   {
     name: 'get_filings',
-    description: 'Get SEC filings for a company filtered by form type (10-K, 10-Q, 8-K, etc.).',
+    description: [
+      'Retrieve a list of SEC filings for a public company filtered by form type.',
+      'Use this tool when you need to find specific regulatory filings — for example: "get the last three 10-K annual reports for Microsoft" or "show me recent 8-K disclosures for Tesla".',
+      'Returns up to the requested number of matching filings, each with: form type, filing date, report period, accession number, primary document filename, and direct SEC.gov URL.',
+      'Common form types: 10-K (annual report), 10-Q (quarterly report), 8-K (material events/disclosures), DEF 14A (proxy statement), S-1 (IPO registration).',
+      'This tool is read-only and queries the SEC EDGAR submissions API.',
+      'Use get_financials to extract structured numeric data from 10-K and 10-Q filings.',
+    ].join(' '),
     inputSchema: {
       type: 'object',
       required: ['identifier'],
       properties: {
-        identifier: { type: 'string', description: 'Ticker symbol or CIK number' },
-        formType:   { type: 'string', description: 'Form type: 10-K, 10-Q, 8-K', default: '10-K' },
-        limit:      { type: 'integer', description: 'Max results', default: 5 },
+        identifier: {
+          type: 'string',
+          description: 'Ticker symbol or CIK number for the company. Examples: "MSFT", "0000789019". Use search_companies to resolve a company name to a ticker or CIK.',
+        },
+        formType: {
+          type: 'string',
+          description: 'SEC form type to filter by. Common values: "10-K" (annual), "10-Q" (quarterly), "8-K" (events), "DEF 14A" (proxy), "S-1" (registration). Defaults to "10-K".',
+          default: '10-K',
+        },
+        limit: {
+          type: 'integer',
+          description: 'Maximum number of filings to return. Defaults to 5.',
+          default: 5,
+        },
       },
     },
   },
   {
     name: 'get_financials',
-    description: 'Get XBRL financial data (revenue, net income, assets) for a public company.',
+    description: [
+      'Retrieve structured XBRL financial data for a public company from SEC EDGAR.',
+      'Use this tool when you need historical financial figures — for example: "what was Apple\'s revenue for the last 5 years?" or "show me Amazon\'s net income trend".',
+      'Returns the last 5 years of annual (10-K) data for the requested metric, including the value, reporting period, and filing date.',
+      'Available metrics: "revenue" (total revenues), "netincome" (net income/loss), "assets" (total assets), "liabilities" (total liabilities), "eps" (earnings per share, basic), "shares" (common shares outstanding).',
+      'Data comes from the official SEC XBRL EDGAR API (data.sec.gov) and reflects exactly what companies reported. This tool is read-only.',
+      'Use get_filings to access the full filing documents if you need data beyond these standard metrics.',
+    ].join(' '),
     inputSchema: {
       type: 'object',
       required: ['identifier'],
       properties: {
-        identifier: { type: 'string', description: 'Ticker symbol or CIK number' },
-        metric:     { type: 'string', description: 'Financial metric: revenues, netIncome, assets', default: 'revenues' },
+        identifier: {
+          type: 'string',
+          description: 'Ticker symbol or CIK number for the company. Examples: "AAPL", "AMZN", "0000018230". Use search_companies to resolve a name.',
+        },
+        metric: {
+          type: 'string',
+          description: 'Financial metric to retrieve. One of: "revenue", "netincome", "assets", "liabilities", "eps", "shares". Defaults to "revenue".',
+          default: 'revenue',
+          enum: ['revenue', 'netincome', 'assets', 'liabilities', 'eps', 'shares'],
+        },
       },
     },
   },
