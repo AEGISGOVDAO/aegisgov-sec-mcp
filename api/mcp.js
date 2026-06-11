@@ -38,6 +38,26 @@ const TOOLS = [
         },
       },
     },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok:      { type: 'boolean', description: 'True if the request succeeded.' },
+        query:   { type: 'string',  description: 'The search query that was executed.' },
+        count:   { type: 'integer', description: 'Number of results returned.' },
+        results: {
+          type: 'array',
+          description: 'List of matching companies.',
+          items: {
+            type: 'object',
+            properties: {
+              name:   { type: 'string',  description: 'Official SEC-registered company name.' },
+              ticker: { type: 'string',  description: 'Stock ticker symbol.' },
+              cik:    { type: 'string',  description: '10-digit SEC CIK number (zero-padded).' },
+            },
+          },
+        },
+      },
+    },
   },
   {
     name: 'get_company_profile',
@@ -55,6 +75,38 @@ const TOOLS = [
         identifier: {
           type: 'string',
           description: 'Ticker symbol or CIK number for the company. Examples: "AAPL", "TSLA", "0000320193". Use search_companies first if you only have a company name.',
+        },
+      },
+    },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok:      { type: 'boolean' },
+        company: {
+          type: 'object',
+          properties: {
+            name:                 { type: 'string',  description: 'Official SEC-registered company name.' },
+            cik:                  { type: 'string',  description: '10-digit CIK number.' },
+            ticker:               { type: 'string',  description: 'Primary ticker symbol.' },
+            sic:                  { type: 'string',  description: 'SIC industry code.' },
+            sicDescription:       { type: 'string',  description: 'SIC industry description.' },
+            stateOfIncorporation: { type: 'string',  description: '2-letter state abbreviation.' },
+            fiscalYearEnd:        { type: 'string',  description: 'Fiscal year end (MMDD format).' },
+            recentFilings: {
+              type: 'array',
+              description: 'Up to 10 most recent SEC filings.',
+              items: {
+                type: 'object',
+                properties: {
+                  form:            { type: 'string', description: 'Form type (e.g. 10-K, 8-K).' },
+                  date:            { type: 'string', description: 'Filing date (YYYY-MM-DD).' },
+                  accessionNumber: { type: 'string', description: 'SEC accession number.' },
+                  primaryDocument: { type: 'string', description: 'Primary document filename.' },
+                  reportDate:      { type: 'string', description: 'Period of report (YYYY-MM-DD).' },
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -89,6 +141,31 @@ const TOOLS = [
         },
       },
     },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok:       { type: 'boolean' },
+        company:  { type: 'string',  description: 'Official company name.' },
+        cik:      { type: 'string',  description: '10-digit CIK number.' },
+        ticker:   { type: 'string',  description: 'Primary ticker symbol.' },
+        formType: { type: 'string',  description: 'Form type that was filtered on.' },
+        filings: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              form:            { type: 'string', description: 'Form type.' },
+              date:            { type: 'string', description: 'Filing date (YYYY-MM-DD).' },
+              reportDate:      { type: 'string', description: 'Period of report (YYYY-MM-DD).' },
+              accessionNumber: { type: 'string', description: 'SEC accession number (dashed format).' },
+              primaryDocument: { type: 'string', description: 'Primary document filename.' },
+              url:             { type: 'string', description: 'Direct URL to the primary filing document on SEC.gov.' },
+              indexUrl:        { type: 'string', description: 'URL to the EDGAR filing index page.' },
+            },
+          },
+        },
+      },
+    },
   },
   {
     name: 'get_financials',
@@ -113,6 +190,32 @@ const TOOLS = [
           description: 'Financial metric to retrieve. One of: "revenue", "netincome", "assets", "liabilities", "eps", "shares". Defaults to "revenue".',
           default: 'revenue',
           enum: ['revenue', 'netincome', 'assets', 'liabilities', 'eps', 'shares'],
+        },
+      },
+    },
+    outputSchema: {
+      type: 'object',
+      properties: {
+        ok:          { type: 'boolean' },
+        company:     { type: 'string',  description: 'Official company name.' },
+        cik:         { type: 'string',  description: '10-digit CIK number.' },
+        ticker:      { type: 'string',  description: 'Primary ticker symbol.' },
+        concept:     { type: 'string',  description: 'XBRL concept name used for the query.' },
+        label:       { type: 'string',  description: 'Human-readable label for the metric.' },
+        unit:        { type: 'string',  description: 'Unit of measurement (e.g. USD, shares).' },
+        annualData: {
+          type: 'array',
+          description: 'Up to 5 years of annual 10-K data, oldest first.',
+          items: {
+            type: 'object',
+            properties: {
+              year:   { type: 'string',  description: 'Fiscal year (YYYY).' },
+              period: { type: 'string',  description: 'End of reporting period (YYYY-MM-DD).' },
+              value:  { type: 'number',  description: 'Reported value in the specified unit.' },
+              form:   { type: 'string',  description: 'Filing form type (10-K).' },
+              filed:  { type: 'string',  description: 'Date the filing was submitted (YYYY-MM-DD).' },
+            },
+          },
         },
       },
     },
