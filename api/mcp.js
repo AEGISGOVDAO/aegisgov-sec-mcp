@@ -3,6 +3,13 @@
 // Enables compatibility with Claude Desktop, Cursor, Cline, and Glama
 
 const { searchCompanies, getCompany } = require('../lib/edgar');
+const { requirePayment } = require('../lib/x402-handler');
+
+// Tools that require payment (DEMO_MODE=false enforces x402)
+const PAID_TOOLS = {
+  get_filings:    '$0.02',
+  get_financials: '$0.05',
+};
 
 const SERVER_INFO = {
   name: 'aegisgov-sec',
@@ -299,6 +306,14 @@ module.exports = async (req, res) => {
       case 'tools/call': {
         const { name, arguments: args = {} } = params || {};
         if (!name) return res.json(jsonrpcError(id, -32602, 'Missing tool name'));
+
+        // Enforce x402 payment for premium tools
+        const price = PAID_TOOLS[name];
+        if (price) {
+          const paid = await requirePayment(req, res, price);
+          if (!paid) return; // requirePayment already sent the 402 response
+        }
+
         const result = await handleToolCall(name, args);
         return res.json(jsonrpc(id, {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
