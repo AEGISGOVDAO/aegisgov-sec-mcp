@@ -18,6 +18,7 @@ function _isCanary(req) {
 
 // Tools that require payment (DEMO_MODE=false enforces x402)
 const PAID_TOOLS = {
+  get_company_profile: '$0.02',
   get_filings:    '$0.02',
   get_financials: '$0.05',
 };
