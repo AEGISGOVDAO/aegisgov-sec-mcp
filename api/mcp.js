@@ -4,6 +4,11 @@
 
 const { searchCompanies, getCompany } = require('../lib/edgar');
 const { requirePayment } = require('../lib/x402-handler');
+const telemetry = require('../lib/telemetry');
+
+const _srv = 'sec';
+function _ip(req) { return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress; }
+function _ref(req) { return req.headers['referer'] || req.headers['referrer'] || ''; }
 
 // Tools that require payment (DEMO_MODE=false enforces x402)
 const PAID_TOOLS = {
@@ -311,7 +316,13 @@ module.exports = async (req, res) => {
         const price = PAID_TOOLS[name];
         if (price) {
           const paid = await requirePayment(req, res, price);
-          if (!paid) return; // requirePayment already sent the 402 response
+          if (!paid) {
+            telemetry.record({ server: _srv, tool: name, status: 402, payAttempt: true, ip: _ip(req), referrer: _ref(req) });
+            return;
+          }
+          telemetry.record({ server: _srv, tool: name, status: 200, paid: true, ip: _ip(req), referrer: _ref(req) });
+        } else {
+          telemetry.record({ server: _srv, tool: name, status: 200, ip: _ip(req), referrer: _ref(req) });
         }
 
         const result = await handleToolCall(name, args);

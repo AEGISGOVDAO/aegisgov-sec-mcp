@@ -8,6 +8,7 @@
     { "src": "/health", "dest": "/api/health.js" },
     { "src": "/", "dest": "/api/index.js" },
     { "src": "/.well-known/mcp.json", "dest": "/api/manifest.js" },
+    { "src": "/metrics", "methods": ["GET"], "dest": "/api/metrics.js" },
     { "src": "/company", "methods": ["POST"], "dest": "/api/company.js" },
     { "src": "/filings", "methods": ["POST"], "dest": "/api/filings.js" },
     { "src": "/financials", "methods": ["POST"], "dest": "/api/financials.js" },
