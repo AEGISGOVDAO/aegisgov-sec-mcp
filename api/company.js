@@ -3,7 +3,7 @@ const { requirePayment } = require('../lib/x402-handler');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const paid = await requirePayment(req, res, '$0.01');
+  const paid = await requirePayment(req, res, '$0.02');
   if (!paid) return;
   try {
     const { ticker, cik } = req.body || {};
