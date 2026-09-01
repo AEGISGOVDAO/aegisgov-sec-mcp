@@ -10,6 +10,12 @@ const _srv = 'sec';
 function _ip(req) { return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress; }
 function _ref(req) { return req.headers['referer'] || req.headers['referrer'] || ''; }
 
+const CANARY_UA_PATTERNS = ['aegisgov-canary','aegisgov-health','frank-audit','health-check'];
+function _isCanary(req) {
+  const ua = (req.headers['user-agent'] || '').toLowerCase();
+  return req.headers['x-aegisgov-canary'] === '1' || CANARY_UA_PATTERNS.some(p => ua.includes(p));
+}
+
 // Tools that require payment (DEMO_MODE=false enforces x402)
 const PAID_TOOLS = {
   get_filings:    '$0.02',
@@ -295,17 +301,20 @@ module.exports = async (req, res) => {
 
   try {
     switch (method) {
-      case 'initialize':
+      case 'initialize': {
+        if (!_isCanary(req)) telemetry.record({ server: _srv, tool: 'initialize', status: 200, ip: _ip(req), referrer: _ref(req) });
         return res.json(jsonrpc(id, {
           protocolVersion: '2025-03-26',
           serverInfo: SERVER_INFO,
           capabilities: CAPABILITIES,
         }));
+      }
 
       case 'notifications/initialized':
         return res.status(202).end();
 
       case 'tools/list':
+        if (!_isCanary(req)) telemetry.record({ server: _srv, tool: 'tools_list', status: 200, ip: _ip(req), referrer: _ref(req) });
         return res.json(jsonrpc(id, { tools: TOOLS }));
 
       case 'tools/call': {
@@ -317,12 +326,12 @@ module.exports = async (req, res) => {
         if (price) {
           const paid = await requirePayment(req, res, price);
           if (!paid) {
-            telemetry.record({ server: _srv, tool: name, status: 402, payAttempt: true, ip: _ip(req), referrer: _ref(req) });
+            if (!_isCanary(req)) telemetry.record({ server: _srv, tool: name, status: 402, payAttempt: true, ip: _ip(req), referrer: _ref(req) });
             return;
           }
-          telemetry.record({ server: _srv, tool: name, status: 200, paid: true, ip: _ip(req), referrer: _ref(req) });
+          if (!_isCanary(req)) telemetry.record({ server: _srv, tool: name, status: 200, paid: true, ip: _ip(req), referrer: _ref(req) });
         } else {
-          telemetry.record({ server: _srv, tool: name, status: 200, ip: _ip(req), referrer: _ref(req) });
+          if (!_isCanary(req)) telemetry.record({ server: _srv, tool: name, status: 200, ip: _ip(req), referrer: _ref(req) });
         }
 
         const result = await handleToolCall(name, args);
