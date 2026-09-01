@@ -3,8 +3,7 @@ const { requirePayment } = require('../lib/x402-handler');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const paid = await requirePayment(req, res, '$0.01');
-  if (!paid) return;
+  // search_companies is now FREE - removed requirePayment
   try {
     const { query, limit } = req.body || {};
     if (!query) return res.status(400).json({ ok: false, error: 'query required' });
